@@ -76,3 +76,7 @@ def dolineplot(xcoord,ycoord,labellist,ax=None):
     ax.set_xlabel('Time [s]')
     ax.set_title('Transversal Resistance [\u03A9] vs Time [s]' )
     return
+
+def subtract_yaxis(yfiltered,yoriginal):
+    y_result = yfiltered - yoriginal
+    return y_result
