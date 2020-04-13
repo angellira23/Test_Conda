@@ -24,8 +24,8 @@ mean_of_all_columns = f.meansofallcolumns(moving_average)
 
 frequency = f.frequencysample(mean_of_all_columns[0])
 
-time_list_values       = [value_of[0]for value_of in mean_of_all_columns]
-transversal_resistance = [value_of[16] for value_of in mean_of_all_columns]
+time_list_values       = [value_of[ID['TIME']]for value_of in mean_of_all_columns]
+transversal_resistance = [value_of[ID['TRANSVERSAL RESISTANCE']] for value_of in mean_of_all_columns]
 #print(list(dictionary_of_files.items())[])
 time_lst_in_secs = f.timeinsecs(moving_average,time_list_values)
 
@@ -36,8 +36,6 @@ y_filtered = f.butter_lowpass_filter(transversal_resistance,cutoff,frequency,ord
 ########## Variables for Plotting ##########
 fig1, (ax1) = plt.subplots(1)
 fig2, (ax2) = plt.subplots(1)
-
-
 
 labellist = ['Non-Filtered Data','Filtered Data','Subtracted']
 
