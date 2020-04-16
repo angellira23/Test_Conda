@@ -1,4 +1,5 @@
 import numpy as np
+import numpy.fft as fft
 import re
 from scipy.signal import butter,filtfilt
 
@@ -27,10 +28,11 @@ def meansofallcolumns(lst):            # Averages of all columns => axis =0. Ave
     meansvalues = [i.mean(axis=0) for i in lst]
     return meansvalues
 
+
 def timeinsecs(lstofarrays,axislist):
     reference_time = lstofarrays[0][0, 0]
     print('Try to put the date as human reading',reference_time)
-    axistoplot = [(x - reference_time) * 1e-4 for x in axislist]
+    axistoplot = [(x - reference_time)*1e-4 for x in axislist]
     return axistoplot
 
 # def difference(lst):
@@ -80,3 +82,12 @@ def dolineplot(xcoord,ycoord,labellist,ax=None):
 def subtract_yaxis(yfiltered,yoriginal):
     y_result = yfiltered - yoriginal
     return y_result
+
+def findFrequency(data,ax=None):
+    ax=ax
+    try_fft = fft.fft(data)
+    freq = fft.fftfreq(len(try_fft))
+    ax.plot(freq, abs(try_fft))
+    ax.set_ylabel('Transversal Resistance')
+    ax.set_xlabel('Frequency [Hz]')
+    return
