@@ -50,14 +50,14 @@ labellist = ['Non-Filtered Data','Filtered Data','Subtracted']
 f.dolineplot(time_lst_in_secs,y_filtered,labellist[1],ax1)
 f.dolineplot(time_lst_in_secs,transversal_resistance,labellist[0],ax1)
 
-final_yaxis = f.subtract_yaxis(transversal_resistance,y_filtered)
+subtractedaxis = f.subtract_yaxis(y_filtered,transversal_resistance)
+subtractedaxis1 = f._removeoutlayers(subtractedaxis)
 
 f.doscatterplot(hCools_list,transversal_resistance,labellist[0],ax3)
 f.doscatterplot(hCools_list,y_filtered,labellist[1],ax3)
-f.doscatterplot(hCools_list,final_yaxis,labellist[2],ax2)
+f.doscatterplot(hCools_list,subtractedaxis,labellist[2],ax2)
+f.doscatterplot(hCools_list[:len(subtractedaxis1)],subtractedaxis1,labellist[2],ax2)
 
-#f.doscatterplot(time_lst_in_secs,final_yaxis,labellist[2],ax2)
-#f.findFrequency(transversal_resistance,ax3)
 
 plt.show()
 

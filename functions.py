@@ -83,6 +83,16 @@ def subtract_yaxis(yfiltered,yoriginal):
     y_result = yfiltered - yoriginal
     return y_result
 
+def _removeoutlayers(lst):
+    elements = np.array(lst)
+    mean = np.mean(elements,axis=0)
+    st   = np.std(elements,axis=0)
+    upperBond = [ x for x in elements if (x > mean - 2*st)]
+    final     = [ x for x in upperBond if (x < mean + 2*st)]
+    print('Tamanho Initial',len(lst))
+    print('Tamanho do Final',len(final))
+    return final
+
 def findFrequency(data,ax=None):
     ax=ax
     try_fft = fft.fft(data)
