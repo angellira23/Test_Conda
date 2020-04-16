@@ -2,6 +2,7 @@ import numpy as np
 import numpy.fft as fft
 import re
 from scipy.signal import butter,filtfilt
+from datetime import datetime
 
 
 def dict_files(filepath_lst):
@@ -28,10 +29,13 @@ def meansofallcolumns(lst):            # Averages of all columns => axis =0. Ave
     meansvalues = [i.mean(axis=0) for i in lst]
     return meansvalues
 
+def timestamps(lsttime):
+    a = [datetime.fromtimestamp(x - 2082844800) for x in lsttime]
+    date = [i.strftime("%m/%d/%Y, %H:%M:%S") for i in a]
+    return date
 
 def timeinsecs(lstofarrays,axislist):
     reference_time = lstofarrays[0][0, 0]
-    print('Try to put the date as human reading',reference_time)
     axistoplot = [(x - reference_time)*1e-4 for x in axislist]
     return axistoplot
 
@@ -101,3 +105,5 @@ def findFrequency(data,ax=None):
     ax.set_ylabel('Transversal Resistance')
     ax.set_xlabel('Frequency [Hz]')
     return
+
+
