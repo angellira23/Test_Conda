@@ -4,12 +4,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 import functions as f
 
+from scipy import optimize
+
 ### ----------File Path -----------###
 directory = 'A:\Programming\Data\EMFC5'
 file_path = glob.glob(filejoin(directory, '*.dat'))
 ##For Testing###
 # directory1 = 'A:\Programming\dataTest'
-# file_path = glob.glob(filejoin(directory1, '*.txt'))
+# file_path = glob.glob(filejoin(directory1, '*.dat'))
 
 ### ------------ Calling dict_files functions to make a dictionary that is sorted by timestamps ------------###
 dictionary_of_files = f.dict_files(file_path)
@@ -41,7 +43,14 @@ frequency = f.frequencysample(time_list_values)
 cutoff = 0.1
 
 ## ------------ Filtering y-axis ---------------------##
-y_filtered = f.butter_lowpass_filter(transversal_resistance,cutoff,frequency,order=8)
+ydrift = f.butter_lowpass_filter(transversal_resistance,cutoff,order=8)
+
+final = moving_average[1][0,0]
+initial = moving_average[0][0,0]
+print('Final: {}, Initial: {}',final, initial)
+
+
+
 
 ''' ************ Plotting ******************'''
 
@@ -49,20 +58,26 @@ y_filtered = f.butter_lowpass_filter(transversal_resistance,cutoff,frequency,ord
 fig1, (ax1) = plt.subplots(1)
 fig2, (ax2) = plt.subplots(1)
 fig3, (ax3) = plt.subplots(1)
+fig4, (ax4) = plt.subplots(1)
 
 labellist = ['Non-Filtered Data','Filtered Data','Subtracted']
 
-f.dolineplot(time_lst_in_secs,y_filtered,labellist[1],ax1)
+f.dolineplot(time_lst_in_secs,ydrift,labellist[1],ax1)
 f.dolineplot(time_lst_in_secs,transversal_resistance,labellist[0],ax1)
 
-subtractedaxis = f.subtract_yaxis(y_filtered,transversal_resistance)
+subtractedaxis = f.subtract_yaxis(ydrift,transversal_resistance)
 subtractedaxis1 = f._removeoutlayers(subtractedaxis)
 
 f.doscatterplot(hCools_list,transversal_resistance,labellist[0],ax3)
-f.doscatterplot(hCools_list,y_filtered,labellist[1],ax3)
+f.doscatterplot(hCools_list,ydrift,labellist[1],ax3)
 
 f.doscatterplot(hCools_list,subtractedaxis,labellist[2],ax2)
 #f.doscatterplot(hCools_list[:len(subtractedaxis1)],subtractedaxis1,labellist[2],ax2)
+
+#p1,pcov = optimize.curve_fit(f.hyperbolic(transversal_resistance),hCools_list,transversal_resistance,p0=[2,2])
+
+#plt.plot(hCools_list, f.hyperbolic(hCools_list, p1[0], p1[1]),label='Fitted function')
+#f.doscatterplot(transversal_resistance,f.hyperbolic(transversal_resistance),labellist[0],ax4)
 
 plt.show()
 

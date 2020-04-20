@@ -5,6 +5,8 @@ from scipy.signal import butter,filtfilt
 from datetime import datetime
 
 
+
+
 def dict_files(filepath_lst):
     dictoffiles = {}
     for namefile in filepath_lst:
@@ -49,7 +51,7 @@ def frequencysample(timelst):
     frequency = 1/dt
     return frequency
 
-def butter_lowpass_filter(data, cutoff, fs, order):
+def butter_lowpass_filter(data, cutoff, order):
     #Get the filter coefficients
     coef1, coef2 = butter(order, cutoff, btype='low', analog=False)
     filtered_yaxis = filtfilt(coef1, coef2, data)
@@ -83,8 +85,8 @@ def dolineplot(xcoord,ycoord,labellist,ax=None):
     ax.set_title('Transversal Resistance [\u03A9] vs Time [s]' )
     return
 
-def subtract_yaxis(yfiltered,yoriginal):
-    y_result = yfiltered - yoriginal
+def subtract_yaxis(ydrift,yoriginal):
+    y_result =  yoriginal - ydrift
     return y_result
 
 def _removeoutlayers(lst):
@@ -97,13 +99,39 @@ def _removeoutlayers(lst):
     print('Tamanho do Final',len(final))
     return final
 
-def findFrequency(data,ax=None):
-    ax=ax
-    try_fft = fft.fft(data)
-    freq = fft.fftfreq(len(try_fft))
-    ax.plot(freq, abs(try_fft))
-    ax.set_ylabel('Transversal Resistance')
-    ax.set_xlabel('Frequency [Hz]')
+def hyperbolic(lst):
+    data = np.array(lst)
+    output = np.tanh(data)
+    return output
+
+# def findFrequency(data,dt):
+#     T = dt*len(data)
+#     df = 1/T
+#     dw = df*2*np.pi
+#     ny = (dw*len(data))/2
+#     f = np.fft.fftfreq(len(data)) * data * df
+#     print('this is f',f)
+#     plt.plot(data,f)
+#     plt.show()
+
+    # try_fft = fft.fft(data)
+    # freq = fft.fftfreq(len(try_fft))
+    # threshold = 0.5 * max(abs(try_fft))
+    # print(threshold)
+    # mask = abs(try_fft) > threshold
+    # peaks = freq[mask]
+    # print(peaks)
+
+    # spec = np.abs(np.fft.rfft(data))
+    # freq = np.fft.rfftfreq(len(data), d=1 / 0.0037)
+    # amp = spec / spec.sum()
+    # mean = (freq * amp).sum()
+    # print('Mean',mean)
+    #return mean
+
+    # ax.plot(freq, abs(try_fft))
+    # ax.set_ylabel('Transversal Resistance')
+    # ax.set_xlabel('Frequency [Hz]')
     return
 
 
