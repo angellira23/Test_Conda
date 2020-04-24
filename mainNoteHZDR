@@ -1,0 +1,44 @@
+from os.path import join as filejoin
+import glob
+import numpy as np
+import matplotlib.pyplot as plt
+
+### ----------File Path -----------###
+directory = 'O:\\data\\ZeroOffsetHall\\veremchuk\\Cr2O3\\IV1928\\FC3'
+file_path = glob.glob(filejoin(directory, '*.dat'))
+
+
+### ------------ Calling dict_files functions to make a dictionary that is sorted by timestamps ------------###
+dictionary_of_files = dict_files(file_path)
+ID = {'TIME': 0,'RESISTANCE':1,'TRANSVERSAL RESISTANCE': 16, 'LONGITUDINAL RESISTANCE':9}
+
+## ---------- Moving Average to Smooth slightly the data ---------##
+moving_average = [do_movingaverage(file)for file in dictionary_of_files.values()]
+
+# ## ---------- Means of all columns for all files -----------##
+mean_of_all_columns = meansofallcolumns(moving_average)
+
+# ##------List of name files = hCools_list --------##
+hCools_list = dictionary_of_files.keys()
+hCools_list = findHcools(hCools_list)
+
+# ## ------------ List of Data to be Evaluated ---------##
+time_list_values       = [value_[ID['TIME']]for value_ in mean_of_all_columns]
+transversal_resistance = [value_[ID['TRANSVERSAL RESISTANCE']] for value_ in mean_of_all_columns]
+
+# ## ----------- Time in units for Plotting ------------## IMPROVEMENT
+#time_lst_in_secs = timeinsecs(moving_average,time_list_values)
+
+# ## ------------ Human Readable Timing ----------------## IMPROVEMENT
+#date = f.timestamps(time_list_values) ### FIX THAT
+
+
+# ## ----------- Frequency Rate of the Test ------------## ASK TOBIAS??
+# frequency = f.frequencysample(time_list_values)
+cutoff = 0.1
+
+# ## ------------ Filtering y-axis ---------------------##
+y_filtered = butter_lowpass_filter(transversal_resistance,cutoff,order=8)
+
+subtractedaxis = subtract_yaxis(y_filtered,transversal_resistance)
+
