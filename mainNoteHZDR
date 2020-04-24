@@ -42,3 +42,43 @@ y_filtered = butter_lowpass_filter(transversal_resistance,cutoff,order=8)
 
 subtractedaxis = subtract_yaxis(y_filtered,transversal_resistance)
 
+# ''' ************ Plotting ******************'''
+# ########## Figures for Plotting ##########
+#fig1, (ax1) = plt.subplots(1)
+fig2, (ax2) = plt.subplots(1)
+fig3, (ax3) = plt.subplots(1)
+fig4, (ax4) = plt.subplots(1)
+
+labellist = ['Raw Data','Filtered Data','Subtracted','Test Fitting','Final NON FITTING','Final Fitting','Fitting of Raw Data']
+
+##########Test Fitting Raw Data ###############
+#params_rawData represents the the number of the parameters
+params_rawData = hyperbolic(hCools_list,transversal_resistance)
+fitted_rawData = hyperbolic_fit(hCools_list,*params_rawData)### Axis of Raw Data Fitted
+
+doscatterplot(hCools_list,fitted_rawData,labellist[6],ax2)
+doscatterplot(hCools_list,transversal_resistance,labellist[0],ax2)
+
+###### Test: Subtract Fitted Data[from Raw Data] from Fitted Data[Low Pass]
+filteredData_minus_RawDataFitted = subtract_yaxis(transversal_resistance,fitted_rawData)
+doscatterplot(hCools_list,filteredData_minus_RawDataFitted,labellist[3],ax3)
+
+### TEST: SUBTRACT fITTED RAW DATA - THE SUBTRACTED YAXIS[FIRST TRIAL]
+subtractedAxis_minus_fittedRawData = subtract_yaxis(fitted_rawData,subtractedaxis)
+doscatterplot(hCools_list,subtractedAxis_minus_fittedRawData,labellist[3],ax4)
+
+### TEST: FIT SECOND SUBTRACTED AXIS
+params_final_fit = hyperbolic(hCools_list,subtractedAxis_minus_fittedRawData)
+axis_finalFit = hyperbolic_fit(hCools_list,*params_final_fit)
+doscatterplot(hCools_list,axis_finalFit,labellist[5],ax4)
+
+
+# def subtract_yaxis(yoriginal,ydrift):
+#     y_result =  yoriginal - ydrift
+#     return y_result
+
+
+
+
+
+
