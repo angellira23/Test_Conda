@@ -1,0 +1,106 @@
+# ''' ************ Plotting ******************'''
+# ########## Figures for Plotting ##########
+
+
+f1, (ax1,ax2) = plt.subplots(1,2,figsize=(25,10))
+f1.tight_layout(w_pad=5.0)
+
+f2, (ax3,ax4) = plt.subplots(1,2,figsize=(25,10))
+f2.tight_layout(w_pad=5.0)
+
+f3, (ax5,ax6) = plt.subplots(1,2,figsize=(25,10))
+f3.tight_layout(w_pad=5.0)
+
+f4, (ax7,ax8) = plt.subplots(1,2,figsize=(25,10))
+f4.tight_layout(w_pad=5.0)
+
+f5, (ax9,ax10) = plt.subplots(1,2,figsize=(25,10))
+f5.tight_layout(w_pad=5.0)
+
+plt.rcParams.update({'font.size': 16})
+
+
+
+
+
+labellist = ['Raw Data','Low Pass Filtered Data','Subtracted','Final Fitting','Fitted Data','Noise Plus Drift',
+            'Drift vs Time','Drift vs HCools','Noise vs Time','Noise vs Hcools','Noise + Signal vs Time',
+            'Noise + Signal vs Hcools','Signal','Drift Subtraction Data: \n Transversal - Drift ']
+
+description = ['\n\nData (Blue): Transversal Resistance.\nFitting: (Orange) Fitting of Data',
+               'Data (Blue):\n Noise + Drift = Raw Data (Transversal Resistance) - Fitted Data from Plot 1',
+               'Drift: Drift from Plot 3 vs HCools ']
+empty = ['Description']
+linePlot = ['Drift: Low pass filter of Plot 2 vs Time']
+
+
+
+##########Test Fitting Raw Data ###############
+#params_rawData represents the the number of the parameters
+params_rawData = hyperbolic(hCools_list,transversal_resistance)
+fitted_rawData = hyperbolic_fit(hCools_list,*params_rawData)### Axis of Raw Data Fitted
+
+noiseplusdrift_ = subtract_yaxis(transversal_resistance,fitted_rawData) #Noise Plus Drift#
+drift_ = butter_lowpass_filter(noiseplusdrift_,cutoff, order=8) # Drift
+noise_ = subtract_yaxis(noiseplusdrift_,drift_)# Noise
+noiseplussignal = adding_axis(fitted_rawData,noise_) # Noise plus Signal
+
+paramsFinalSignal = hyperbolic(hCools_list,noiseplussignal)
+fittedFinalSignal = hyperbolic_fit(hCools_list,*paramsFinalSignal)
+
+
+#######''' PLOTTING'''####
+####### Fitting Raw Data: Plotting ###
+doscatterplot(hCools_list,transversal_resistance,labellist[0],description[0],ax1)
+doscatterplot(hCools_list,fitted_rawData,labellist[4],empty[0],ax1)
+
+# ##### Noise plus Drift VS Hcools ###
+doscatterplot(hCools_list,noiseplusdrift_,labellist[5],description[1],ax2)
+
+# ###### Drift Vs Time ###
+dolineplot(time_lst_in_secs,drift_,labellist[6],linePlot[0],ax3)
+# ##### Drift vs Hcools ##
+doscatterplot(hCools_list,drift_,labellist[7],description[2],ax4)
+
+# #### Noise vs Time ##
+# dolineplot(time_lst_in_secs,noise_,labellist[8],ax5)
+# ### Noise vs Hcools ##
+# doscatterplot(hCools_list, noise_, labellist[9],ax6)
+
+# ### Noise plus Signal vs Time ###
+# dolineplot(time_lst_in_secs,noiseplussignal,labellist[10],ax7)
+# ### Noise plus Signal vs Hcools ##
+# doscatterplot(hCools_list,noiseplussignal,labellist[11],ax8)
+
+# ## Signal vs Hcools ##
+# doscatterplot(hCools_list,fittedFinalSignal,labellist[12],ax8)
+
+
+# ###'''Only Drift Subtraction'''###
+# filtered_transRes = butter_lowpass_filter(transversal_resistance,cutoff,order=8)
+# drift_subtraction = subtract_yaxis(transversal_resistance,filtered_transRes)
+
+# ###'''Fitting Only Drift'''###
+# params_drift_Sub = hyperbolic(hCools_list,drift_subtraction)
+# fitted_drift_Sub = hyperbolic_fit(hCools_list,*params_drift_Sub)
+
+# # Plot Only Subtraction #
+# doscatterplot(hCools_list,drift_subtraction,labellist[-1],ax9)
+# doscatterplot(hCools_list,fitted_drift_Sub,labellist[4],ax9)
+
+
+
+plt.show()
+
+
+
+
+
+
+# def subtract_yaxis(yoriginal,ydrift):
+#     y_result =  yoriginal - ydrift
+#     return y_result
+
+
+
+
