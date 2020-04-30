@@ -1,0 +1,133 @@
+import numpy as np
+import numpy.fft as fft
+import re
+from scipy.signal import butter,filtfilt
+from scipy.optimize import curve_fit
+from datetime import datetime
+import seaborn as sb
+from matplotlib.offsetbox import AnchoredText
+
+def dict_files(filepath_lst):
+    dictoffiles = {}
+    for namefile in filepath_lst:
+        content_file = np.loadtxt(namefile)
+        dictoffiles[namefile] = content_file
+    ## Sorting files according to content array
+    sorted_dictoffiles = {keys: values for keys, values in sorted(dictoffiles.items(), key=lambda item: item[1][0, 0])}
+    return sorted_dictoffiles
+
+def do_movingaverage(arr):
+    result = (arr[:-1, :] + arr[1:, :]) * 0.5
+    return result
+
+def findHcools(filename_lst):
+    values_filelst = []
+    for strings in filename_lst:
+        lst_numberStr = re.findall(r'[*+-]?\d+\.\d+', strings)
+        values_filelst.append(float(lst_numberStr[0]))
+    return values_filelst
+
+def meansofallcolumns(lst):            # Averages of all columns => axis =0. Averages of all rows => axis = 1
+    meansvalues = [i.mean(axis=0) for i in lst]
+    return meansvalues
+
+def timestamps(lsttime):
+    a = [datetime.fromtimestamp(x - 2082844800) for x in lsttime]
+    date = [i.strftime("%m/%d/%Y, %H:%M:%S") for i in a]
+    return date
+
+def timeinsecs(lstofarrays,axislist):
+    reference_time = lstofarrays[0][0, 0]
+    axistoplot = [(x - reference_time)*1e-4 for x in axislist]
+    return axistoplot
+
+# def difference(lst):
+# #     for i in range(len(lst) - 1):
+# #         subtraction = lst[i + 1] - lst[i]
+# #     return subtraction
+
+def frequencysample(timelst):
+    dt = np.mean(np.diff(timelst))
+    frequency = 1/dt
+    return frequency
+
+def butter_lowpass_filter(data, cutoff, order):
+    #Get the filter coefficients
+    coef1, coef2 = butter(order, cutoff, btype='low', analog=False)
+    filtered_yaxis = filtfilt(coef1, coef2, data)
+    return filtered_yaxis
+
+
+# def coherence_plot(y1coord, y2coord, freq, ax=None):
+#     ax = ax
+#     cxy, f = ax.cohere(y1coord, y2coord, NFFT=10)
+#     ax.set_ylabel('Coherence between \n Original Data - Filtered Data \n [Transversal Resistance]')
+#     return cxy, f
+
+def doscatterplot(xcoord,ycoord,labellist,description,ax=None):
+    ax = ax
+    ax.scatter(xcoord, ycoord,label=labellist)
+    ax.legend()
+    dy = (max(ycoord) - min(ycoord))/10
+    dx = (max(xcoord) - min(xcoord))/10
+    ax.set_ylim(min(ycoord) - dy, max(ycoord) + dy)
+    # Put a legend to the right of the current axis
+    ax.legend(loc='lower right')
+    ax.ticklabel_format(axis='y',style='sci',scilimits=(-3,-4))
+    #ax.annotate(s=description)#, horizontalalignment='center',verticalalignment='center', transform=ax.transAxes)
+    ax.axhline(y=0, color='g')
+    ax.axvline(x=0, color='g')
+    ax.set_ylabel('Transversal Resistance [\u03A9]')
+    ax.set_xlabel('HCools [T]')
+    ax.set_title('Transversal Resistance [\u03A9] vs HCools [T]' )
+    at = AnchoredText(description,
+                  prop=dict(size=15), frameon=True,
+                  loc='upper left',
+                  )
+    at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
+    ax.add_artist(at)
+    return
+
+def dolineplot(xcoord,ycoord,labellist,description,ax=None):
+    ax=ax
+    ax.plot(xcoord,ycoord, label= labellist)
+    ax.legend(loc='lower right')
+    ax.grid('On')
+    at = AnchoredText(description,
+                  prop=dict(size=15), frameon=True,
+                  loc='upper left',
+                  )
+    at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
+    ax.add_artist(at)
+    ax.set_ylabel('Transversal Resistance [\u03A9]')
+    ax.set_xlabel('Time [s]')
+    ax.set_title('Transversal Resistance [\u03A9] vs Time [s]' )
+    return
+
+def subtract_yaxis(yoriginal,ydrift):
+    y_result =  yoriginal - ydrift
+    return y_result
+
+def adding_axis(axisone, axistwo):
+    axisone = np.array(axisone)
+    axistwo = np.array(axistwo)
+    adding_axis = axisone + axistwo
+    return adding_axis
+
+def _removeoutlayers(lst):
+    elements = np.array(lst)
+    mean = np.mean(elements,axis=0)
+    st   = np.std(elements,axis=0)
+    upperBond = [ x for x in elements if (x > mean - 2*st)]
+    final     = [ x for x in upperBond if (x < mean + 2*st)]
+    print('Tamanho Initial',len(lst))
+    print('Tamanho do Final',len(final))
+    return final
+
+def hyperbolic_fit(x, amp, x0, width,dwidth):
+    return amp*np.tanh((x-x0)/width)+dwidth
+
+def hyperbolic(x, y):
+    best_vals, covar = curve_fit(hyperbolic_fit, x, y, p0=[0.000005, 0.0, 0.2,0.1])
+    print('Amplitude: {}. Centralized: {}. Width: {}. \u0394 width: {} '.format(best_vals[0],best_vals[1],best_vals[2],best_vals[3]))
+    return best_vals
